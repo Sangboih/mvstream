@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MVStream - Your Movie Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .movie-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-image::before {
+            content: '🎬';
+            font-size: 4rem;
+            opacity: 0.3;
+            position: absolute;
+        }
+
+        .movie-image.poster1 {
+            background-image: url('p1.jpg');
+        }
+
+        .movie-image.poster2 {
+            background-image: url('p2.jpg');
+        }
+
+        /* Hide the fallback content when image loads */
+        .movie-image.poster1::before,
+        .movie-image.poster2::before {
+            display: none;
+        }
+
+        .movie-image.poster1 span,
+        .movie-image.poster2 span {
+            display: none;
+        }
+
+        .movie-info {
+            padding: 20px;
+            text-align: left;
+            background: white;
+        }
+
+        .movie-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-transform: capitalize;
+        }
+
+        .movie-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .rating-high { color: #27ae60; }
+        .rating-medium { color: #f39c12; }
+        .rating-low { color: #e74c3c; }
+
+        .genre { color: #8e44ad; }
+        .duration { color: #34495e; }
+
+        .play-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .play-button:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 MVStream</h1>
+        
+        <input type="text" class="search-bar" placeholder="Search movies..." id="searchInput">
+        
+        <div class="movies-grid">
+            <div class="movie-card" onclick="playMovie('helios')">
+                <div class="movie-image poster1">
+                    <span>The Lost Lotteries</span>
+                </div>
+                <div class="movie-info">
+                    <div class="movie-title">The Lost Lotteries</div>
+                    <div class="movie-details">
+                        <div class="detail-row">
+                            <span>⭐</span>
+                            <span class="rating-medium">IMDB: 5.5/10</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>🎭</span>
+                            <span class="genre">Comedy</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>🍅</span>
+                            <span class="rating-medium">Rotten Tomatoes: 50%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>⏰</span>
+                            <span class="duration">1h 58min</span>
+                        </div>
+                    </div>
+                    <button class="play-button" onclick="event.stopPropagation(); playMovie('helios')">
+                        ▶️ Watch Now
+                    </button>
+                </div>
+            </div>
+
+            <div class="movie-card" onclick="playMovie('nysm')">
+                <div class="movie-image poster2">
+                    <span>Now You See Me</span>
+                </div>
+                <div class="movie-info">
+                    <div class="movie-title">Now You See Me</div>
+                    <div class="movie-details">
+                        <div class="detail-row">
+                            <span>⭐</span>
+                            <span class="rating-high">IMDB: 7.2/10</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>🎭</span>
+                            <span class="genre">Thriller/Crime</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>🍅</span>
+                            <span class="rating-low">Rotten Tomatoes: 50%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>⏰</span>
+                            <span class="duration">1h 58min</span>
+                        </div>
+                    </div>
+                    <button class="play-button" onclick="event.stopPropagation(); playMovie('nysm')">
+                        ▶️ Watch Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function playMovie(movieId) {
+            let movieLink;
+            let movieTitle;
+            
+            if (movieId === 'helios') {
+                // Convert Google Drive link to embeddable format
+                movieLink = 'https://drive.google.com/file/d/11Nhnyuww40auokTb2FkAMjgZA6OjJpEs/preview';
+                movieTitle = 'The Lost Lotteries';
+            } else if (movieId === 'nysm') {
+                // Convert Google Drive link to embeddable format
+                movieLink = 'https://drive.google.com/file/d/1mO-3sJTgIp59hkpHyd0EeSIl39bpMwiF/preview';
+                movieTitle = 'Now You See Me';
+            }
+            
+            // Create fullscreen video player overlay
+            createVideoPlayer(movieLink, movieTitle);
+        }
+
+        function createVideoPlayer(videoUrl, title) {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+
+            // Create header with title and close button
+            const header = document.createElement('div');
+            header.style.cssText = `
+                width: 100%;
+                max-width: 1200px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                color: white;
+            `;
+
+            const titleElement = document.createElement('h2');
+            titleElement.textContent = title;
+            titleElement.style.cssText = `
+                color: white;
+                font-size: 1.5rem;
+                margin: 0;
+            `;
+
+            const closeButton = document.createElement('button');
+            closeButton.textContent = '✕';
+            closeButton.style.cssText = `
+                background: none;
+                border: none;
+                color: white;
+                font-size: 2rem;
+                cursor: pointer;
+                padding: 10px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.3s ease;
+            `;
+            closeButton.onmouseover = () => closeButton.style.background = 'rgba(255, 255, 255, 0.2)';
+            closeButton.onmouseout = () => closeButton.style.background = 'none';
+            closeButton.onclick = () => document.body.removeChild(overlay);
+
+            header.appendChild(titleElement);
+            header.appendChild(closeButton);
+
+            // Create video iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = videoUrl;
+            iframe.style.cssText = `
+                width: 100%;
+                height: 80vh;
+                max-width: 1200px;
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            `;
+            iframe.allow = 'autoplay';
+
+            // Create loading message
+            const loadingMsg = document.createElement('div');
+            loadingMsg.textContent = 'Loading video...';
+            loadingMsg.style.cssText = `
+                color: white;
+                font-size: 1.2rem;
+                margin-top: 20px;
+                text-align: center;
+            `;
+
+            overlay.appendChild(header);
+            overlay.appendChild(iframe);
+            overlay.appendChild(loadingMsg);
+
+            // Add to body
+            document.body.appendChild(overlay);
+
+            // Remove loading message after iframe loads
+            iframe.onload = () => {
+                if (loadingMsg.parentNode) {
+                    loadingMsg.remove();
+                }
+            };
+
+            // Close on ESC key
+            const handleKeyPress = (e) => {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(overlay);
+                    document.removeEventListener('keydown', handleKeyPress);
+                }
+            };
+            document.addEventListener('keydown', handleKeyPress);
+
+            // Close when clicking outside the video
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                    document.removeEventListener('keydown', handleKeyPress);
+                }
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const movieCards = document.querySelectorAll('.movie-card');
+            
+            movieCards.forEach(card => {
+                const title = card.querySelector('.movie-title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Add some interactivity
+        document.querySelectorAll('.movie-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.animationDelay = '0s';
+            });
+        });
+
+        // Image error handling - if p1.jpg fails to load, show fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            const poster1 = document.querySelector('.poster1');
+            const poster2 = document.querySelector('.poster2');
+            
+            // Test if images load
+            const img1 = new Image();
+            img1.onload = function() {
+                poster1.style.backgroundImage = "url('p1.jpg')";
+            };
+            img1.onerror = function() {
+                console.log('p1.jpg failed to load - check file path and size');
+                poster1.querySelector('span').style.display = 'block';
+                poster1.style.backgroundImage = 'none';
+            };
+            img1.src = 'p1.jpg';
+
+            const img2 = new Image();
+            img2.onload = function() {
+                poster2.style.backgroundImage = "url('p2.jpg')";
+            };
+            img2.onerror = function() {
+                console.log('p2.jpg failed to load - check file path and size');
+                poster2.querySelector('span').style.display = 'block';
+                poster2.style.backgroundImage = 'none';
+            };
+            img2.src = 'p2.jpg';
+        });
+    </script>
+</body>
+</html>
